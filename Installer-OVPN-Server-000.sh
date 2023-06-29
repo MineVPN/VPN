@@ -388,7 +388,7 @@ function installQuestions() {
 		echo "   5) AES-192-CBC"
 		echo "   6) AES-256-CBC"
 		until [[ $CIPHER_CHOICE =~ ^[1-6]$ ]]; do
-			read -rp "Шифр [1-6]: " -e -i 1 CIPHER_CHOICE
+			read -rp "Шифр [1-6]: " -e -i 4 CIPHER_CHOICE
 		done
 		case $CIPHER_CHOICE in
 		1)
@@ -415,7 +415,7 @@ function installQuestions() {
 		echo "   1) ECDSA (рекоменд.)"
 		echo "   2) RSA"
 		until [[ $CERT_TYPE =~ ^[1-2]$ ]]; do
-			read -rp"Тип ключа сертификата [1-2]: " -e -i 1 CERT_TYPE
+			read -rp"Тип ключа сертификата [1-2]: " -e -i 2 CERT_TYPE
 		done
 		case $CERT_TYPE in
 		1)
@@ -500,7 +500,7 @@ function installQuestions() {
 		echo "   1) ECDH (рекоменд.)"
 		echo "   2) DH"
 		until [[ $DH_TYPE =~ [1-2] ]]; do
-			read -rp"Тип ключа DH [1-2]: " -e -i 1 DH_TYPE
+			read -rp"Тип ключа DH [1-2]: " -e -i 2 DH_TYPE
 		done
 		case $DH_TYPE in
 		1)
@@ -576,7 +576,7 @@ function installQuestions() {
 		echo "   1) tls-crypt (рекоменд.)"
 		echo "   2) tls-auth"
 		until [[ $TLS_SIG =~ [1-2] ]]; do
-			read -rp "Механизм дополнительной защиты канала управления [1-2]: " -e -i 1 TLS_SIG
+			read -rp "Механизм дополнительной защиты канала управления [1-2]: " -e -i 2 TLS_SIG
 		done
 	fi
 	echo ""
