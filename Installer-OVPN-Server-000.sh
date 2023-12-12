@@ -370,14 +370,14 @@ function installQuestions() {
 		read -rp "Настроить параметры шифрования? [y/n]: " -e -i n CUSTOMIZE_ENC
 	done
 	if [[ $CUSTOMIZE_ENC == "n" ]]; then
-		CIPHER="AES-128-GCM"
+		CIPHER="AES-128-CBC"
 		CERT_TYPE="1" # ECDSA
 		CERT_CURVE="prime256v1"
 		CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
 		DH_TYPE="1" # ECDH
 		DH_CURVE="prime256v1"
 		HMAC_ALG="SHA256"
-		TLS_SIG="1" # tls-crypt
+		TLS_SIG="2" # tls-crypt
 	else
 		echo ""
 		echo "Выберите, какой шифр вы хотите использовать для канала данных:"
