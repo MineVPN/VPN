@@ -5,7 +5,7 @@ NETWORK_INTERFACE=$(ip route | awk '/default/ { print $5 }')
 
 # Удаление предыдущих настроек
 sudo systemctl stop strongswan xl2tpd
-sudo apt remove --purge -y strongswan xl2tpd
+sudo apt remove --purge -y strongswan xl2tpd netfilter-persistent
 sudo rm -rf /etc/ipsec.conf /etc/ipsec.secrets /etc/xl2tpd /etc/sysctl.conf /etc/ppp
 
 # Проверка и удаление файлов, если они существуют
@@ -18,7 +18,7 @@ sudo mkdir -p /etc/ppp
 # Установка необходимых пакетов без интерактивных запросов
 export DEBIAN_FRONTEND=noninteractive
 sudo apt update
-sudo apt install -y strongswan xl2tpd
+sudo apt install -y strongswan xl2tpd netfilter-persistent
 
 # Включение IP Forwarding
 echo "net.ipv4.ip_forward = 1" | sudo tee -a /etc/sysctl.conf
