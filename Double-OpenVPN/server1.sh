@@ -4,6 +4,9 @@ source /etc/os-release
 #OS="debian"
 OS=$ID
 
+# Определение сетевого интерфейса
+NETWORK_INTERFACE=$(ip route | awk '/default/ { print $5 }')
+
 if [[ -e /etc/openvpn/server.conf ]]; then
 
 	# Get OpenVPN port from the configuration
@@ -180,6 +183,7 @@ NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 
 echo "#!/bin/sh
 iptables -t nat -I POSTROUTING 1 -s 10.8.0.0/24 -o tun1 -j MASQUERADE
+iptables -t nat -I POSTROUTING 1 -s 10.8.0.0/24 -o $NETWORK_INTERFACE -j MASQUERADE
 iptables -I INPUT 1 -i tun1 -j ACCEPT
 iptables -I FORWARD 1 -i $NIC -o tun1 -j ACCEPT
 iptables -I FORWARD 1 -i tun1 -o $NIC -j ACCEPT
