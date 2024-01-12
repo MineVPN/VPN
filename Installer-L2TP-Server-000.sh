@@ -105,8 +105,8 @@ echo " "
 echo "         L2TP-сервер был успешно настроен!"
 echo " "
 echo "==================================================="
-echo "|| IP: $(hostname -I)                            ||"
-echo "|| IPsec ключ: $IPSEC_SECRET_KEY  ||"
+echo " IP: $(hostname -I)                            "
+echo " IPsec ключ: $IPSEC_SECRET_KEY  "
 echo "==================================================="
 # Создание трех пользователей L2TP
 sudo touch /etc/ppp/chap-secrets
@@ -114,7 +114,7 @@ USERS=("mine1" "mine2" "mine3")
 for USER in "${USERS[@]}"; do
     PASSWORD=$(openssl rand -base64 12)
     echo "$USER l2tpd $PASSWORD *" | sudo tee -a /etc/ppp/chap-secrets > /dev/null
-    echo "|| Пользователь: $USER Пароль: $PASSWORD  ||"
+    echo " Пользователь: $USER Пароль: $PASSWORD "
     
 done
 echo "==================================================="
