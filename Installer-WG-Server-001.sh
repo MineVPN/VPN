@@ -4,6 +4,13 @@
 read -p "Введіть кількість клієнтів WireGuard: " client_count
 read -p "Введіть базову назву для конфігураційних файлів клієнтів (наприклад, 'wg-client'): " base_config_name
 
+# Визначення зовнішньої IP-адреси сервера
+server_ip=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | awk '{print $1}' | head -1)
+    if [[ -z ${server_ip} ]]; then
+        server_ip=$(ip -6 addr | sed -ne 's|^.* inet6 \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+    fi
+    read -rp "Публичный адрес IPv4: " -e -i "${server_ip}" server_ip
+
 # Оновлення системи та встановлення WireGuard
 sudo apt update
 sudo apt install -y wireguard qrencode
@@ -12,12 +19,7 @@ echo "net.ipv4.icmp_echo_ignore_all=1" | sudo tee -a /etc/sysctl.conf
 echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 
-# Визначення зовнішньої IP-адреси сервера
-server_ip=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | awk '{print $1}' | head -1)
-    if [[ -z ${server_ip} ]]; then
-        server_ip=$(ip -6 addr | sed -ne 's|^.* inet6 \([^/]*\)/.* scope global.*$|\1|p' | head -1)
-    fi
-    read -rp "Публичный адрес IPv4: " -e -i "${server_ip}" server_ip
+
 
 # Генерація випадкового порту для WireGuard (в діапазоні 1024-65535)
 wg_port=$(shuf -i 58000-65535 -n 1)
@@ -65,7 +67,7 @@ AllowedIPs = $client_ip" >> /etc/wireguard/wg0.conf
 }
 
 # Генерація конфігураційних файлів для клієнтів
-for i in $(seq 1 $((client_count+1)))
+for i in $(seq 1 $((client_count)))
 do
     generate_client_config "$i"
 done
