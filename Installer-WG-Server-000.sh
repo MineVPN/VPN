@@ -177,6 +177,7 @@ CLIENT_DNS_2=${CLIENT_DNS_2}" >/etc/wireguard/params
 	echo "[Interface]
 Address = ${SERVER_WG_IPV4}/24,${SERVER_WG_IPV6}/64
 ListenPort = ${SERVER_PORT}
+MTU = 1500
 PrivateKey = ${SERVER_PRIV_KEY}" >"/etc/wireguard/${SERVER_WG_NIC}.conf"
 
 	if pgrep firewalld; then
@@ -286,6 +287,7 @@ function newClient() {
 	echo "[Interface]
 PrivateKey = ${CLIENT_PRIV_KEY}
 Address = ${CLIENT_WG_IPV4}/32,${CLIENT_WG_IPV6}/128
+MTU = 1500
 DNS = ${CLIENT_DNS_1},${CLIENT_DNS_2}
 
 [Peer]
