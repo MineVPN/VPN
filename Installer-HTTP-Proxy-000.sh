@@ -7,8 +7,10 @@ echo "Удаление предыдущей установки Squid..."
 sudo systemctl stop squid || true
 sudo apt-get remove --purge -y squid
 sudo apt-get autoremove -y
-sudo systemctl disable --now systemd-journald.service
-sudo systemctl disable --now syslog.socket rsyslog.service
+systemctl disable --now systemd-journald.service
+systemctl disable --now syslog.socket rsyslog.service
+rm /var/log/auth.log
+rm /var/log/syslog
 
 # Удаление предыдущего файла паролей
 echo "Удаление предыдущего файла паролей..."
