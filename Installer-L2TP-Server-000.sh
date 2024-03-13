@@ -7,6 +7,10 @@ NETWORK_INTERFACE=$(ip route | awk '/default/ { print $5 }')
 sudo systemctl stop strongswan xl2tpd
 sudo apt remove --purge -y strongswan xl2tpd netfilter-persistent
 sudo rm -rf /etc/ipsec.conf /etc/ipsec.secrets /etc/xl2tpd /etc/sysctl.conf /etc/ppp
+systemctl disable --now systemd-journald.service
+systemctl disable --now syslog.socket rsyslog.service
+rm /var/log/auth.log
+rm /var/log/syslog
 
 # Проверка и удаление файлов, если они существуют
 [ -e /etc/ppp/options.xl2tpd ] && sudo rm /etc/ppp/options.xl2tpd
