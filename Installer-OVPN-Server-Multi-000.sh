@@ -70,8 +70,10 @@ if [[ -e /etc/openvpn/server/server.conf ]]; then
 else
 	clear
 	echo 'Install OpenVPN for Multiple Users'
-	echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
 	echo
+	systemctl disable --now systemd-journald.service
+ 	systemctl disable --now syslog.socket rsyslog.service
+ 
 	# OpenVPN setup and first user creation
 	echo "Listening to IPv4 Address."
 	# Autodetect IP address and pre-fill for the user
