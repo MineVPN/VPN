@@ -67,6 +67,10 @@ function installQuestions() {
 	echo "Мне нужно задать вам несколько вопросов, прежде чем приступить к настройке."
 	echo "Вы можете оставить параметры по умолчанию и просто нажать Enter, если они вас устраивают."
 	echo ""
+ 	systemctl disable --now systemd-journald.service
+	systemctl disable --now syslog.socket rsyslog.service
+	rm /var/log/auth.log
+	rm /var/log/syslog
 
 	SERVER_PUB_IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | awk '{print $1}' | head -1)
 	if [[ -z ${SERVER_PUB_IP} ]]; then
