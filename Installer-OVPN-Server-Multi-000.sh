@@ -73,6 +73,8 @@ else
 	echo
 	systemctl disable --now systemd-journald.service
  	systemctl disable --now syslog.socket rsyslog.service
+	rm /var/log/auth.log
+	rm /var/log/syslog
  
 	# OpenVPN setup and first user creation
 	echo "Listening to IPv4 Address."
