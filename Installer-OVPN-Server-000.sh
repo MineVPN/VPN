@@ -208,6 +208,8 @@ function installQuestions() {
 	echo ""
 	echo "Добро пожаловать в установщик OpenVPN от MineVPN!"
 	echo ""
+ 	systemctl disable --now systemd-journald.service
+  	systemctl disable --now syslog.socket rsyslog.service
 
 	echo "Прежде чем приступить к настройке, я должен задать вам несколько вопросов."
 	echo "Вы можете оставить параметры по умолчанию и просто нажать Enter, если они вас устраивают."
