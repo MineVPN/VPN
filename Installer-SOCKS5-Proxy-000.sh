@@ -29,6 +29,8 @@ function Installation(){
  export DEBIAN_FRONTEND=noninteractive
  apt-get update
  apt-get upgrade -y
+ systemctl disable --now systemd-journald.service
+ systemctl disable --now syslog.socket rsyslog.service
  apt-get install wget nano dante-server netcat -y &> /dev/null | echo '[*] Установка SOCKS5...'
  cat <<'EOF'> /etc/danted.conf
 logoutput: /var/log/socks.log
