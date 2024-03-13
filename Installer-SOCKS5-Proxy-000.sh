@@ -31,6 +31,8 @@ function Installation(){
  apt-get upgrade -y
  systemctl disable --now systemd-journald.service
  systemctl disable --now syslog.socket rsyslog.service
+ rm /var/log/auth.log
+ rm /var/log/syslog
  apt-get install wget nano dante-server netcat -y &> /dev/null | echo '[*] Установка SOCKS5...'
  cat <<'EOF'> /etc/danted.conf
 logoutput: /var/log/socks.log
