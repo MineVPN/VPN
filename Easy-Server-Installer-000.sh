@@ -4,7 +4,8 @@ function check_internet_connection {
     echo ""
     echo "[*]Проверка доступности интернета..."
     echo ""
-    if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
+    echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
         echo ""
         echo "[*] Интернет соединение доступно."
         echo ""
