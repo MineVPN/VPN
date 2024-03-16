@@ -2,9 +2,9 @@
 
 function check_internet_connection {
     echo ""
-    echo "[*]Проверка доступности интернета..."
+    echo "[*] Проверка доступности интернета..."
     echo ""
-    echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+    ping -q -c1 google.com &>/dev/null
     if [ $? -eq 0 ]; then
         echo ""
         echo "[*] Интернет соединение доступно."
@@ -16,6 +16,7 @@ function check_internet_connection {
         exit 1
     fi
 }
+
 
 echo ""
 echo "Добро пожаловать в Настройщик Сервера с Нуля!"
