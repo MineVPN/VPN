@@ -2,7 +2,7 @@
 
 function check_internet_connection {
     echo "Проверка доступности интернета..."
-    if ping -q -c 1 -W 1 google.com >/dev/null; then
+    if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
         echo ""
         echo "[*] Интернет соединение доступно."
         echo ""
