@@ -20,6 +20,15 @@ echo ""
 echo "Добро пожаловать в Настройщик Сервера с Нуля!"
 echo ""
 
+
+if [ "$EUID" -ne 0 ]; then
+    echo ""
+    echo "[*] Этот скрипт должен быть запущен от пользователя root."
+    echo ""
+    exit 1
+fi
+
+
 # Получаем список сетевых интерфейсов и их адресов
 interfaces_and_addresses=$(ip addr show | awk '/^[0-9]+:/ {if (interface != "") print interface ": " address; interface=$2; address=""; next} /inet / {split($2, parts, "/"); address=parts[1]} END {if (interface != "") print interface ": " address}' | nl)
 
