@@ -1,7 +1,9 @@
 #!/bin/bash
 
 function check_internet_connection {
-    echo "Проверка доступности интернета..."
+    echo ""
+    echo "[*]Проверка доступности интернета..."
+    echo ""
     if ping -q -c 1 -W 1 8.8.8.8 >/dev/null; then
         echo ""
         echo "[*] Интернет соединение доступно."
@@ -119,9 +121,7 @@ echo "[*] Установка нужных компонентов..."
 echo ""
 apt-get update
 apt-get upgrade -y
-apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn resolvconf apache2 php git
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent
-
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn resolvconf apache2 php git iptables-persistent
 
 echo ""
 echo "[*] Разрешаеам руту подключатся по SSH..."
@@ -147,6 +147,8 @@ server=8.8.4.4
 cache-size=10000
 EOF
 
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
 sudo systemctl restart dnsmasq
 sudo systemctl enable dnsmasq
 
