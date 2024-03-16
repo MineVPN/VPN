@@ -1,9 +1,6 @@
 #!/bin/bash
 
 function check_internet_connection {
-    echo ""
-    echo "[*] Проверка доступности интернета..."
-    echo ""
     ping -q -c1 google.com &>/dev/null
     if [ $? -eq 0 ]; then
         echo ""
