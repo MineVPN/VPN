@@ -19,7 +19,7 @@ echo "Добро пожаловать в Настройщик Сервера с 
 echo ""
 
 # Получаем список сетевых интерфейсов и их адресов
-interfaces_and_addresses=$(ip addr show | awk '/^[0-9]+:/ {interface=$2} /inet / {split($2, parts, "/"); print interface ": " parts[1]}' | nl)
+interfaces_and_addresses=$(ip addr show | awk '/^[0-9]+:/ {if (interface != "") print interface ": " address; interface=$2; address=""; next} /inet / {split($2, parts, "/"); address=parts[1]} END {if (interface != "") print interface ": " address}' | nl)
 
 # Выводим список всех интерфейсов и их адресов с номерами
 echo "Сетевые интерфейсы и их адреса:"
