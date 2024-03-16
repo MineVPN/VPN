@@ -1,20 +1,5 @@
 #!/bin/bash
 
-function check_internet_connection {
-    ping -q -c1 google.com &>/dev/null
-    if [ $? -eq 0 ]; then
-        echo ""
-        echo "[*] Интернет соединение доступно."
-        echo ""
-    else
-        echo ""
-        echo "[*] Ошибка: Интернет соединение недоступно. Пожалуйста, убедитесь, что сервер подключен к сети."
-        echo ""
-        exit 1
-    fi
-}
-
-
 echo ""
 echo "Добро пожаловать в Настройщик Сервера с Нуля!"
 echo ""
@@ -121,7 +106,8 @@ netplan apply
 echo ""
 echo "[*] Проверка доступа в интернет..."
 echo ""
-check_internet_connection
+ping -q -c1 google.com &>/dev/null && { echo ""; echo "[*] Интернет соединение доступно."; echo ""; } || { echo ""; echo "[*] Ошибка: Интернет соединение недоступно. Пожалуйста, убедитесь, что сервер подключен к сети."; echo ""; exit 1; }
+
 
 
 echo ""
