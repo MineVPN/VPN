@@ -68,7 +68,7 @@ EOF
 elif [ "$choice" == "2" ]; then
     # Конфигурация для статического адреса
     read -p "Введите IP-адрес: " address
-    read -p "Введите маску подсети: " subnet_mask
+    read -p "Введите маску подсети [24]: " subnet_mask
     read -p "Введите шлюз: " gateway
     read -p "Введите DNS1: " dns1
     read -p "Введите DNS2: " dns2
