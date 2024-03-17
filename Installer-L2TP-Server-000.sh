@@ -21,8 +21,8 @@ sudo mkdir -p /etc/ppp
 
 # Установка необходимых пакетов без интерактивных запросов
 export DEBIAN_FRONTEND=noninteractive
-sudo apt update
-sudo apt install -y strongswan xl2tpd netfilter-persistent
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y strongswan xl2tpd iptables-persistent
 
 # Включение IP Forwarding
 echo "net.ipv4.ip_forward = 1" | sudo tee -a /etc/sysctl.conf
@@ -100,7 +100,7 @@ EOF
 # Настройка правил iptables для маршрутизации и NAT
 sudo iptables -t nat -A POSTROUTING -o $NETWORK_INTERFACE -j MASQUERADE
 sudo iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-sudo netfilter-persistent save
+sudo iptables-save > /etc/iptables/rules.v4
 
 
 # Вывод информации
