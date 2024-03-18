@@ -178,7 +178,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo service iptables restart
 rm /var/www/html/*
 sudo git clone https://github.com/MineVPN/WebVPNCabinet.git /var/www/html
-echo "0 4 * * * cd /var/www/html && sudo git pull origin main" | crontab -
+echo "0 4 * * * /bin/bash /var/www/html/update.sh" | sudo crontab -
 
 
 echo ""
