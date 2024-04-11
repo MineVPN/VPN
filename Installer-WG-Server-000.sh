@@ -131,6 +131,19 @@ function installWireGuard() {
 		apt update
 		apt-get install -y iptables resolvconf qrencode
 		apt-get install -y -t buster-backports wireguard
+		# Файл, который необходимо изменить
+		RESOLV_CONF="/etc/resolv.conf"
+
+		# DNS серверы, которые вы хотите добавить
+		DNS1="nameserver 1.1.1.1"
+		DNS2="nameserver 8.8.8.8"
+
+		# Проверка и добавление первого DNS сервера, если он отсутствует
+		grep -qxF "$DNS1" "$RESOLV_CONF" || echo "$DNS1" | sudo tee -a "$RESOLV_CONF"
+
+		# Проверка и добавление второго DNS сервера, если он отсутствует
+		grep -qxF "$DNS2" "$RESOLV_CONF" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF"
+  	
 	elif [[ ${OS} == 'fedora' ]]; then
 		if [[ ${VERSION_ID} -lt 32 ]]; then
 			dnf install -y dnf-plugins-core
