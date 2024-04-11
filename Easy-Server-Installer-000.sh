@@ -160,7 +160,7 @@ sudo iptables-save > /etc/iptables/rules.v4
 echo ""
 echo "[*] Настройка VPN протоколов..."
 echo ""
-sudo sed -i '/^# *AUTOSTART/s/^#//' /etc/default/openvpn
+sudo sed -i '/^#\s*AUTOSTART="all"/s/^#\s*//' /etc/default/openvpn
 
 
 echo ""
