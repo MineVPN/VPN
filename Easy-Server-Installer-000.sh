@@ -101,6 +101,16 @@ echo ""
 echo "[*] Применяем настройки сети..."
 echo ""
 netplan apply
+
+RESOLV_CONF="/etc/resolv.conf"
+# DNS серверы, которые вы хотите добавить
+DNS1="nameserver 1.1.1.1"
+DNS2="nameserver 8.8.8.8"
+# Проверка и добавление первого DNS сервера, если он отсутствует
+grep -qxF "$DNS1" "$RESOLV_CONF" || echo "$DNS1" | sudo tee -a "$RESOLV_CONF"
+# Проверка и добавление второго DNS сервера, если он отсутствует
+grep -qxF "$DNS2" "$RESOLV_CONF" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF"
+
 sleep 5
 
 echo ""
