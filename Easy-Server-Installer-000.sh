@@ -86,10 +86,10 @@ network:
       optional: true   
     $input_interface:
       dhcp4: false
-      addresses: ["$address/$subnet_mask"]
-      gateway4: "$gateway"
+      addresses: [$address/$subnet_mask]
+      gateway4: $gateway
       nameservers: 
-        addresses: ["$dns1", "$dns2"]
+        addresses: [$dns1, $dns2]
 EOF
 else
     echo "Неверный выбор."
