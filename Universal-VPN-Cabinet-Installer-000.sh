@@ -16,6 +16,7 @@ grep -qxF "$DNS1" "$RESOLV_CONF" || echo "$DNS1" | sudo tee -a "$RESOLV_CONF"
 
 # Проверка и добавление второго DNS сервера, если он отсутствует
 grep -qxF "$DNS2" "$RESOLV_CONF" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF"
+sudo resolvconf -u
 
 
 chmod 777 /etc/openvpn/
