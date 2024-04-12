@@ -143,6 +143,8 @@ function installWireGuard() {
 
 		# Проверка и добавление второго DNS сервера, если он отсутствует
 		grep -qxF "$DNS2" "$RESOLV_CONF" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF"
+
+  		sudo resolvconf -u
   	
 	elif [[ ${OS} == 'fedora' ]]; then
 		if [[ ${VERSION_ID} -lt 32 ]]; then
