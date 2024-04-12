@@ -102,16 +102,7 @@ echo "[*] Применяем настройки сети..."
 echo ""
 netplan apply
 
-RESOLV_CONF="/etc/resolv.conf"
-# DNS серверы, которые вы хотите добавить
-DNS1="nameserver 1.1.1.1"
-DNS2="nameserver 8.8.8.8"
-# Проверка и добавление первого DNS сервера, если он отсутствует
-grep -qxF "$DNS1" "$RESOLV_CONF" || echo "$DNS1" | sudo tee -a "$RESOLV_CONF"
-# Проверка и добавление второго DNS сервера, если он отсутствует
-grep -qxF "$DNS2" "$RESOLV_CONF" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF"
-
-sleep 5
+sleep 7
 
 echo ""
 echo "[*] Проверка доступа в интернет..."
@@ -125,7 +116,21 @@ echo "[*] Установка нужных компонентов..."
 echo ""
 apt-get update
 apt-get upgrade -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn resolvconf apache2 php git iptables-persistent
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn apache2 php git iptables-persistent resolvconf
+
+# Файл, который необходимо изменить
+RESOLV_CONF="/etc/resolvconf/resolv.conf.d/base"
+
+# DNS серверы, которые вы хотите добавить
+DNS1="nameserver 1.1.1.1"
+DNS2="nameserver 8.8.8.8"
+
+# Проверка и добавление первого DNS сервера, если он отсутствует
+grep -qxF "$DNS1" "$RESOLV_CONF" || echo "$DNS1" | sudo tee -a "$RESOLV_CONF"
+
+# Проверка и добавление второго DNS сервера, если он отсутствует
+grep -qxF "$DNS2" "$RESOLV_CONF" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF"
+sudo resolvconf -u
 
 echo ""
 echo "[*] Разрешаеам руту подключатся по SSH..."
