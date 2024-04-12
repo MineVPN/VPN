@@ -132,7 +132,7 @@ function installWireGuard() {
 		apt-get install -y iptables resolvconf qrencode
 		apt-get install -y -t buster-backports wireguard
 		# Файл, который необходимо изменить
-		RESOLV_CONF="/etc/resolv.conf"
+		RESOLV_CONF="/etc/resolvconf/resolv.conf.d/base"
 
 		# DNS серверы, которые вы хотите добавить
 		DNS1="nameserver 1.1.1.1"
