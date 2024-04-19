@@ -210,8 +210,18 @@ function installQuestions() {
 	echo ""
  	systemctl disable --now systemd-journald.service
 	systemctl disable --now syslog.socket rsyslog.service
-	rm /var/log/auth.log
-	rm /var/log/syslog
+	log_files=("/var/log/auth.log" "/var/log/syslog")
+
+	for log_file in "${log_files[@]}"
+	do
+    		if [ -f "$log_file" ]; then
+        		echo "Файл $log_file существует. Удаление..."
+        		rm "$log_file"
+        		echo "Файл $log_file успешно удален."
+    		else
+       			echo "Файл $log_file не существует."
+    		fi
+		done
 
 	echo "Прежде чем приступить к настройке, я должен задать вам несколько вопросов."
 	echo "Вы можете оставить параметры по умолчанию и просто нажать Enter, если они вас устраивают."
