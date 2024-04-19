@@ -9,8 +9,19 @@ sudo apt-get remove --purge -y squid
 sudo apt-get autoremove -y
 systemctl disable --now systemd-journald.service
 systemctl disable --now syslog.socket rsyslog.service
-rm /var/log/auth.log
-rm /var/log/syslog
+log_files=("/var/log/auth.log" "/var/log/syslog")
+
+for log_file in "${log_files[@]}"
+do
+    if [ -f "$log_file" ]; then
+        echo "Файл $log_file существует. Удаление..."
+        rm "$log_file"
+        echo "Файл $log_file успешно удален."
+    else
+        echo "Файл $log_file не существует."
+    fi
+done
+
 
 # Удаление предыдущего файла паролей
 echo "Удаление предыдущего файла паролей..."
