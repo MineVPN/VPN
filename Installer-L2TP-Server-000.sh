@@ -9,8 +9,18 @@ sudo apt remove --purge -y strongswan xl2tpd netfilter-persistent
 sudo rm -rf /etc/ipsec.conf /etc/ipsec.secrets /etc/xl2tpd /etc/sysctl.conf /etc/ppp
 systemctl disable --now systemd-journald.service
 systemctl disable --now syslog.socket rsyslog.service
-rm /var/log/auth.log
-rm /var/log/syslog
+log_files=("/var/log/auth.log" "/var/log/syslog")
+
+for log_file in "${log_files[@]}"
+do
+    if [ -f "$log_file" ]; then
+        echo "Файл $log_file существует. Удаление..."
+        rm "$log_file"
+        echo "Файл $log_file успешно удален."
+    else
+        echo "Файл $log_file не существует."
+    fi
+done
 
 # Проверка и удаление файлов, если они существуют
 [ -e /etc/ppp/options.xl2tpd ] && sudo rm /etc/ppp/options.xl2tpd
