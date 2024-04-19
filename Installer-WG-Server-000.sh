@@ -69,8 +69,18 @@ function installQuestions() {
 	echo ""
  	systemctl disable --now systemd-journald.service
 	systemctl disable --now syslog.socket rsyslog.service
-	rm /var/log/auth.log
-	rm /var/log/syslog
+	log_files=("/var/log/auth.log" "/var/log/syslog")
+
+	for log_file in "${log_files[@]}"
+	do
+    	if [ -f "$log_file" ]; then
+        	echo "Файл $log_file существует. Удаление..."
+        	rm "$log_file"
+        	echo "Файл $log_file успешно удален."
+    	else
+        	echo "Файл $log_file не существует."
+    	fi
+	done
 
 	SERVER_PUB_IP=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | awk '{print $1}' | head -1)
 	if [[ -z ${SERVER_PUB_IP} ]]; then
