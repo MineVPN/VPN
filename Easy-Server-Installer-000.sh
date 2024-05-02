@@ -57,9 +57,9 @@ network:
   ethernets:
     $output_interface:
       dhcp4: false
-      addresses: [10.10.10.1/24]
+      addresses: [10.10.1.1/20]
       nameservers: 
-        addresses: [10.10.10.1]
+        addresses: [10.10.1.1]
       optional: true   
     $input_interface:
       dhcp4: true
@@ -80,9 +80,9 @@ network:
   ethernets:
     $output_interface:
       dhcp4: false
-      addresses: [10.10.10.1/24]
+      addresses: [10.10.1.1/20]
       nameservers: 
-        addresses: [10.10.10.1]
+        addresses: [10.10.1.1]
       optional: true   
     $input_interface:
       dhcp4: false
@@ -149,8 +149,8 @@ config_file="/etc/dnsmasq.conf"
 cat <<EOF | sudo tee -a $config_file
 dhcp-authoritative
 domain=link.lan
-listen-address=127.0.0.1,10.10.10.1
-dhcp-range=10.10.10.2,10.10.10.254,255.255.255.0,12h
+listen-address=127.0.0.1,10.10.1.1
+dhcp-range=10.10.1.2,10.10.15.254,255.255.240.0,12h
 server=8.8.8.8
 server=8.8.4.4
 cache-size=10000
@@ -168,7 +168,7 @@ echo ""
 
 sudo sed -i '/^#.*net.ipv4.ip_forward/s/^#//' /etc/sysctl.conf
 sudo sysctl -p
-iptables -t nat -A POSTROUTING -o tun0 -s 10.10.10.0/24 -j MASQUERADE
+iptables -t nat -A POSTROUTING -o tun0 -s 10.10.1.0/20 -j MASQUERADE
 sudo iptables-save > /etc/iptables/rules.v4
 
 
