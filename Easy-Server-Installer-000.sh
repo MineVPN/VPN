@@ -120,6 +120,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr networ
 
 # Файл, который необходимо изменить
 RESOLV_CONF="/etc/resolvconf/resolv.conf.d/base"
+RESOLV_CONF2="/etc/resolv.conf"
 
 # DNS серверы, которые вы хотите добавить
 DNS1="nameserver 1.1.1.1"
@@ -130,6 +131,13 @@ grep -qxF "$DNS1" "$RESOLV_CONF" || echo "$DNS1" | sudo tee -a "$RESOLV_CONF"
 
 # Проверка и добавление второго DNS сервера, если он отсутствует
 grep -qxF "$DNS2" "$RESOLV_CONF" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF"
+
+# Проверка и добавление первого DNS сервера, если он отсутствует
+grep -qxF "$DNS1" "$RESOLV_CONF2" || echo "$DNS1" | sudo tee -a "$RESOLV_CONF2"
+
+# Проверка и добавление второго DNS сервера, если он отсутствует
+grep -qxF "$DNS2" "$RESOLV_CONF2" || echo "$DNS2" | sudo tee -a "$RESOLV_CONF2"
+
 sudo resolvconf -u
 
 echo ""
