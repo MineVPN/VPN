@@ -176,7 +176,8 @@ if [ -f "$WG_CONFIG" ]; then
     exit 0
   else
     echo "WireGuard is already installed. Use '$0 -d' option to remove."
-    exit 1
+    remove_wireguard
+    exit 0
   fi
 fi
 
