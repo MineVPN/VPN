@@ -130,7 +130,7 @@ sudo touch /etc/ppp/chap-secrets
 USERS=("mine1" "mine2" "mine3")
 for USER in "${USERS[@]}"; do
     PASSWORD=$(openssl rand -base64 12)
-    echo "$USER l2tpd $PASSWORD *" | sudo tee -a /etc/ppp/chap-secrets
+    echo "$USER l2tpd $PASSWORD *" | sudo tee -a /etc/ppp/chap-secrets > /dev/null
     echo " Пользователь: $USER Пароль: $PASSWORD " | sudo tee -a $OUTPUT_FILE
 done
 
