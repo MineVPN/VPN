@@ -115,7 +115,9 @@ sudo iptables-save > /etc/iptables/rules.v4
 
 echo " "
 echo " "
-
+echo "         L2TP-сервер был успешно настроен!"
+echo " "
+echo " "
 # Вывод информации
 OUTPUT_FILE="/root/l2tp.txt"
 {
@@ -142,7 +144,5 @@ done
 # Перезапуск сервисов
 sudo systemctl restart strongswan-starter xl2tpd
 
-echo " "
-echo "         L2TP-сервер был успешно настроен!"
-echo " "
+
 echo "Информация о подключении сохранена в $OUTPUT_FILE"
