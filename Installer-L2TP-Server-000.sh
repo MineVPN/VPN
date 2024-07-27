@@ -145,4 +145,6 @@ done
 sudo systemctl restart strongswan-starter xl2tpd
 
 
-echo "Информация о подключении сохранена в $OUTPUT_FILE"
+echo "Данные для подключения сохранены в $OUTPUT_FILE"
+echo " "
+echo " "
