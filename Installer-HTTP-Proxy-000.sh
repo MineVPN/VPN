@@ -67,10 +67,10 @@ sudo systemctl restart squid
 # Получение IP-адреса сервера
 server_ip=$(hostname -I | awk '{print $1}')
 
-# Вывод данных для подключения
+# Вывод информации на экран
 echo " "
 echo " "
-echo "    HTTPS прокси-сервер был успешно настроен!"
+echo "    HTTP прокси-сервер был успешно настроен!"
 echo " "
 echo "==================================================="
 echo " "
@@ -82,3 +82,15 @@ echo "           Пароль: $pass"
 echo " "
 echo "==================================================="
 echo " "
+
+# Запись информации в файл http.txt
+echo "===================================================" >> http.txt
+echo " " >> http.txt
+echo "           IP: $server_ip" >> http.txt
+echo "           Порт: 3128" >> http.txt
+echo " " >> http.txt
+echo "           Пользователь: $user" >> http.txt
+echo "           Пароль: $pass" >> http.txt
+echo " " >> http.txt
+echo "===================================================" >> http.txt
+echo " " >> http.txt
