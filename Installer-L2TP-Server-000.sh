@@ -105,40 +105,44 @@ lcp-echo-failure 4
 defaultroute
 EOF
 
+sudo mkdir -p /etc/iptables
+
+
 # Настройка правил iptables для маршрутизации и NAT
 sudo iptables -t nat -A POSTROUTING -o $NETWORK_INTERFACE -j MASQUERADE
 sudo iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 sudo iptables-save > /etc/iptables/rules.v4
 
-# Создание файла с данными для подключения
+echo " "
+echo " "
+
+# Вывод информации
 OUTPUT_FILE="/root/l2tp.txt"
 {
-    echo " "
-    echo " "
-    echo "         L2TP-сервер был успешно настроен!"
-    echo " "
     echo "==================================================="
     echo " IP: $(hostname -I)"
     echo " IPsec ключ: $IPSEC_SECRET_KEY"
     echo "==================================================="
-} | sudo tee $OUTPUT_FILE > /dev/null
+} | sudo tee $OUTPUT_FILE
 
 # Создание трех пользователей L2TP
 sudo touch /etc/ppp/chap-secrets
 USERS=("mine1" "mine2" "mine3")
 for USER in "${USERS[@]}"; do
     PASSWORD=$(openssl rand -base64 12)
-    echo "$USER l2tpd $PASSWORD *" | sudo tee -a /etc/ppp/chap-secrets > /dev/null
-    echo " Пользователь: $USER Пароль: $PASSWORD " | sudo tee -a $OUTPUT_FILE > /dev/null
+    echo "$USER l2tpd $PASSWORD *" | sudo tee -a /etc/ppp/chap-secrets
+    echo " Пользователь: $USER Пароль: $PASSWORD " | sudo tee -a $OUTPUT_FILE
 done
 
 {
     echo "==================================================="
     echo " "
     echo " "
-} | sudo tee -a $OUTPUT_FILE > /dev/null
-
+} | sudo tee -a $OUTPUT_FILE
 # Перезапуск сервисов
 sudo systemctl restart strongswan-starter xl2tpd
 
+echo " "
+echo "         L2TP-сервер был успешно настроен!"
+echo " "
 echo "Информация о подключении сохранена в $OUTPUT_FILE"
