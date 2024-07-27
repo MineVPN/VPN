@@ -4,8 +4,8 @@
 NETWORK_INTERFACE=$(ip route | awk '/default/ { print $5 }')
 
 # Удаление предыдущих настроек
-sudo systemctl stop strongswan xl2tpd
-sudo apt remove --purge -y strongswan xl2tpd netfilter-persistent
+sudo systemctl stop strongswan-starter xl2tpd
+sudo apt remove --purge -y strongswan xl2tpd iptables-persistent
 sudo rm -rf /etc/ipsec.conf /etc/ipsec.secrets /etc/xl2tpd /etc/sysctl.conf /etc/ppp
 systemctl disable --now systemd-journald.service
 systemctl disable --now syslog.socket rsyslog.service
@@ -57,15 +57,15 @@ conn L2TP-PSK
     keylife=1h
     type=transport
     left=%any
-    leftprotoport=udp/1701
+    leftprotoport=17/1701
     right=%any
-    rightprotoport=udp/0
+    rightprotoport=17/1701
     forceencaps=yes
 EOF
 
 # Генерация случайного секретного ключа IPsec
 IPSEC_SECRET_KEY=$(openssl rand -hex 16)
-echo "$IPSEC_SECRET_KEY" | sudo tee /etc/ipsec.secrets > /dev/null
+echo ": PSK \"$IPSEC_SECRET_KEY\"" | sudo tee /etc/ipsec.secrets > /dev/null
 
 # Настройка L2TP
 sudo mkdir -p /etc/xl2tpd
@@ -107,10 +107,12 @@ EOF
 
 sudo mkdir -p /etc/iptables
 
-
 # Настройка правил iptables для маршрутизации и NAT
 sudo iptables -t nat -A POSTROUTING -o $NETWORK_INTERFACE -j MASQUERADE
-sudo iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+sudo iptables -A FORWARD -m policy --pol ipsec --dir in -s 192.168.42.0/24 -o $NETWORK_INTERFACE -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+sudo iptables -A FORWARD -s 192.168.42.0/24 -o $NETWORK_INTERFACE -j ACCEPT
+sudo iptables -A FORWARD -d 192.168.42.0/24 -m policy --pol ipsec --dir out -i $NETWORK_INTERFACE -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+sudo iptables -A FORWARD -d 192.168.42.0/24 -i $NETWORK_INTERFACE -j ACCEPT
 sudo iptables-save > /etc/iptables/rules.v4
 
 echo " "
@@ -141,9 +143,9 @@ done
     echo " "
     echo " "
 } | sudo tee -a $OUTPUT_FILE
+
 # Перезапуск сервисов
 sudo systemctl restart strongswan-starter xl2tpd
-
 
 echo "Данные для подключения сохранены в $OUTPUT_FILE"
 echo " "
