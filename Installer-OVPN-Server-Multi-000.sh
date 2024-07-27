@@ -60,16 +60,13 @@ newclient () {
 }
 
 if [[ -e /etc/openvpn/server/server.conf ]]; then
-		echo "OpenVPN is already installed"
 		echo
-		echo "Still you can't connect multiple users to the OpenVPN server?"
-		echo "Restart the server!"
+		echo "OpenVPN уже установлен!"
 		echo
-		echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
 		exit
 else
 	clear
-	echo 'Install OpenVPN for Multiple Users'
+	echo 'Установка OpenVPN Multiple Users'
 	echo
 	systemctl disable --now systemd-journald.service
  	systemctl disable --now syslog.socket rsyslog.service
@@ -87,7 +84,7 @@ else
 	done
  
 	# OpenVPN setup and first user creation
-	echo "Listening to IPv4 Address."
+	echo "Поиск IPv4 адресов."
 	# Autodetect IP address and pre-fill for the user
 	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 	read -p "IP address: " -e -i $IP IP
@@ -95,13 +92,13 @@ else
 	if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
 		echo
 		echo "Enter Public IPv4 Address"
-		read -p "Public IP Address: " -e PUBLICIP
+		read -p "Публичный IP Address: " -e PUBLICIP
 	fi
 	echo
-	echo "Choose OpenVPN Protocol (default UDP):"
-	echo "   1) UDP (recommended)"
+	echo "Выбери OpenVPN протокол (стандартно UDP):"
+	echo "   1) UDP (рекомнед)"
 	echo "   2) TCP"
-	read -p "Protocol [1-2]: " -e -i 1 PROTOCOL
+	read -p "Протокол [1-2]: " -e -i 1 PROTOCOL
 	case $PROTOCOL in
 		1)
 		PROTOCOL=udp
@@ -111,22 +108,22 @@ else
 		;;
 	esac
 	echo
-	echo "Enter OpenVPN Port (default 1194)"
+	echo "Введите OpenVPN порт (стандартно 1194)"
 	read -p "Port: " -e -i 5469 PORT
 	echo
-	echo "Choose DNS for VPN (default System)"
-	echo "   1) Current system resolvers"
+	echo "выберите DNS для VPN (стандартно Системные)"
+	echo "   1) Системные"
 	echo "   2) 1.1.1.1"
 	echo "   3) Google"
 	echo "   4) OpenDNS"
 	echo "   5) Verisign"
 	read -p "DNS [1-5]: " -e -i 1 DNS
 	echo
-	echo "Enter the name Client Certificate (One Word)"
-	read -p "Client name: " -e -i client CLIENT
+	echo "Введите имя кондига"
+	read -p "Имя конфига: " -e -i client CLIENT
 	echo
-	echo "Please wait few minutes"
-	read -n1 -r -p "Press any key to continue..."
+	echo "Пожалуйста ожидайте.."
+	read -n1 -r -p "Нажите любую клавишу для продолжения..."
 	# If running inside a container, disable LimitNPROC to prevent conflicts
 	if systemd-detect-virt -cq; then
 		mkdir /etc/systemd/system/openvpn-server@server.service.d/ 2>/dev/null
@@ -302,13 +299,7 @@ verb 3" > /etc/openvpn/server/client-common.txt
 	# Generates the custom client.ovpn
 	newclient "$CLIENT"
 	echo
-	echo "Completed!"
- 	echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
-	echo
-	echo "duplicate-cn is added to the server.conf"
-	echo
-	echo "Now you can share the client certificate with unlimited number of users"
-	echo "Please restart the server"
-	echo
-	echo "The client configuration is available at:" ~/"$CLIENT.ovpn"
+	echo "Установка и настройка выполнена!"
+ 	echo "Вы можете скачать файл конфига в папке /root/" ~/"$CLIENT.ovpn"
+  	echo
 fi
