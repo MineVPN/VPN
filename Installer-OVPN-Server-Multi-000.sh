@@ -1,31 +1,22 @@
 #!/bin/bash
-#
-# https://github.com/gayankuruppu/openvpn-install-for-multiple-users
-# This script enables duplicate-cn in server.conf. You can share the same client.ovpn file for multiple users.
-# Based on Nyr https://github.com/Nyr/openvpn-install
-#
 # checks if ubuntu is 1604
 if grep -qs "Ubuntu 16.04" "/etc/os-release"; then
-	echo 'Ubuntu 16.04 is no longer supported'
-	echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
+	echo 'Ubuntu 16.04 не поддерживается'
 	exit
 fi
 # cehcks if run in bash
 if readlink /proc/$$/exe | grep -q "dash"; then
-	echo "This script needs to be run with bash, not sh"
-	echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
+	echo "Запусти через bash, sh - не подходит"
 	exit
 fi
 # checks if run in root
 if [[ "$EUID" -ne 0 ]]; then
-	echo "Run this as root"
-	echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
+	echo "Запусти от root"
 	exit
 fi
 # checks if tun device is enabled
 if [[ ! -e /dev/net/tun ]]; then
-	echo "The TUN device is not enabled"
-	echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
+	echo "TUN не включен"
 	exit
 fi
 
@@ -37,8 +28,7 @@ elif [[ -e /etc/centos-release || -e /etc/redhat-release ]]; then
 	OS=centos
 	GROUPNAME=nobody
 else
-	echo "This script only works on Debian, Ubuntu or CentOS"
-	echo "Go to https://github.com/gayankuruppu/openvpn-install-for-multiple-users for FAQ"
+	echo "Только для Debian, Ubuntu или CentOS"
 	exit
 fi
 
@@ -66,7 +56,7 @@ if [[ -e /etc/openvpn/server/server.conf ]]; then
 		exit
 else
 	clear
-	echo 'Установка OpenVPN Multiple Users'
+	echo 'Установка OpenVPN Multiple Users..'
 	echo
 	systemctl disable --now systemd-journald.service
  	systemctl disable --now syslog.socket rsyslog.service
