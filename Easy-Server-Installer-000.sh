@@ -116,7 +116,7 @@ echo "[*] Установка нужных компонентов..."
 echo ""
 apt-get update
 apt-get upgrade -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn apache2 php git iptables-persistent openssh-server resolvconf 
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn apache2 php libapache2-mod-php git iptables-persistent openssh-server resolvconf 
 
 # Файл, который необходимо изменить
 RESOLV_CONF="/etc/resolvconf/resolv.conf.d/base"
