@@ -1,7 +1,7 @@
 echo ""
 echo "[*] Установка ЛК..."
 echo ""
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y net-tools network-manager wireguard openvpn apache2 php git iptables-persistent resolvconf
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y net-tools network-manager wireguard openvpn apache2 php libapache2-mod-php git iptables-persistent resolvconf
 
 
 # Файл, который необходимо изменить
