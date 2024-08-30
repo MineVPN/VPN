@@ -1,5 +1,11 @@
 #!/bin/bash
 
+function getServerIP() {
+    IP=$(ip -4 addr show | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+    echo "$IP"
+}
+
+
 # Определение сетевого интерфейса
 NETWORK_INTERFACE=$(ip route | awk '/default/ { print $5 }')
 
@@ -124,7 +130,7 @@ echo " "
 OUTPUT_FILE="/root/l2tp.txt"
 {
     echo "==================================================="
-    echo " IP: $(hostname -I)"
+    echo " IP: $(getServerIP)"
     echo " IPsec ключ: $IPSEC_SECRET_KEY"
     echo "==================================================="
 } | sudo tee $OUTPUT_FILE
