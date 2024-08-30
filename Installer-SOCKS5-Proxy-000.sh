@@ -10,6 +10,10 @@ function generate_password() {
     cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1
 }
 
+function getServerIP() {
+    IP=$(ip -4 addr show | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+    echo "$IP"
+}
 
 source /etc/os-release
 if [[ "$ID" != 'ubuntu' ]]; then
@@ -92,22 +96,24 @@ function SuccessMessage(){
  clear
  echo -e ""
  YourBanner
- echo -e "======================"
- echo -e " IP: $(wget -4qO- http://ipinfo.io/ip)"
+ echo -e "============================"
+ echo -e " IP: $(getServerIP)"
  echo -e " Port: $SOCKSPORT"
  echo -e " Username: $socksUser"
  echo -e " Password: $socksPass"
- echo -e "======================"
+ echo -e "============================"
  echo -e ""
  echo -e " Данные для подключения записаны в /root/socks5.txt"
  cat <<EOF> ~/socks5.txt
-IP Address: $(wget -4qO- http://ipinfo.io/ip)
+============================
+IP: $(getServerIP)
 Port: $SOCKSPORT
 EOF
  if [ "$SOCKSAUTH" == 'username' ]; then
  cat <<EOF>> ~/socks5.txt
 Username: $socksUser
 Password: $socksPass
+============================
 EOF
  fi
  echo -e ""
