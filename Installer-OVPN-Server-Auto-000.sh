@@ -118,7 +118,7 @@ verb 3
 tls-auth /etc/openvpn/tls-auth.key 0
 auth SHA256
 tls-version-min 1.2
-tls-cipher TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 crl-verify crl.pem
 
 # Перенаправление всего трафика через VPN
@@ -164,7 +164,7 @@ auth-nocache
 cipher AES-128-CBC
 tls-client
 tls-version-min 1.2
-tls-cipher TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 verb 3
 <ca>
