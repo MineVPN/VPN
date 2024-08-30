@@ -27,6 +27,10 @@ done
 echo "Удаление предыдущего файла паролей..."
 sudo rm -f /etc/squid/passwd
 
+# Удаление старого файла http.txt, если он существует
+echo "Удаление старого файла http.txt..."
+sudo rm -f http.txt
+
 # Установка HTTPS прокси-сервера (в примере - Squid)
 echo "Установка HTTP прокси-сервера..."
 sudo apt-get update
