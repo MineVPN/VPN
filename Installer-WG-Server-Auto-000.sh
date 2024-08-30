@@ -13,21 +13,21 @@ function get_free_udp_port() {
 }
 
 function remove_wireguard() {
-  echo "Removing WireGuard configurations and components..."
+  echo "Удаление конфигураций и компонентов WireGuard..."
 
-  # Stop WireGuard service
+  # Остановка службы WireGuard
   systemctl stop wg-quick@wg0.service
   systemctl disable wg-quick@wg0.service
 
-  # Remove WireGuard configuration file if it exists
+  # Удаление конфигурационного файла WireGuard, если он существует
   if [ -f "$WG_CONFIG" ]; then
     rm -f $WG_CONFIG
   fi
 
-  # Remove WireGuard client configuration files in /root/ directory
+  # Удаление конфигурационных файлов клиента WireGuard в директории /root/
   rm -f /root/*.conf
 
-  # Reset iptables rules
+  # Сброс правил iptables
   iptables -F
   iptables -t nat -F
   iptables -t mangle -F
@@ -36,18 +36,18 @@ function remove_wireguard() {
   iptables -P OUTPUT ACCEPT
   iptables-save > /etc/iptables/rules.v4
 
-  # Uninstall WireGuard packages based on the distribution
+  # Удаление пакетов WireGuard в зависимости от дистрибутива
   if [ "$DISTRO" == "Ubuntu" ] || [ "$DISTRO" == "Debian" ]; then
     apt-get purge --auto-remove -y wireguard qrencode iptables-persistent
   elif [ "$DISTRO" == "CentOS" ]; then
     yum remove -y wireguard-dkms wireguard-tools qrencode firewalld
   fi
 
-  echo "WireGuard configurations and components have been removed."
+  echo "Конфигурации и компоненты WireGuard удалены."
 }
 
 function install_wireguard() {
-    ### Install server and add default client
+    ### Установка сервера и добавление дефолтного клиента
     PRIVATE_SUBNET="10.9.0.0/24"
     PRIVATE_SUBNET_MASK=$(echo $PRIVATE_SUBNET | cut -d "/" -f 2)
     GATEWAY_ADDRESS="${PRIVATE_SUBNET::-4}1"
@@ -90,7 +90,7 @@ SaveConfig = false" > $WG_CONFIG
       CLIENT_PUBKEY=$(echo $CLIENT_PRIVKEY | wg pubkey)
       CLIENT_ADDRESS="${PRIVATE_SUBNET::-4}$((i + 1))"
 
-      echo "# Client ${CLIENT_BASE_NAME}-${i}
+      echo "# Клиент ${CLIENT_BASE_NAME}-${i}
 
 [Peer]
 PublicKey = $CLIENT_PUBKEY
@@ -136,18 +136,18 @@ PersistentKeepalive = 25" > "${ROOT_DIR}/${CLIENT_BASE_NAME}-${i}.conf"
     systemctl enable wg-quick@wg0.service
     systemctl start wg-quick@wg0.service
 
-    echo "Client configurations are generated with base name ${CLIENT_BASE_NAME}-<number>."
-    echo "You can find them in the /root directory."
-    echo "Now reboot the server and enjoy your fresh VPN installation! :)"
+    echo "Конфигурации клиентов созданы с базовым именем ${CLIENT_BASE_NAME}-<номер>."
+    echo "Вы можете найти их в директории /root."
+    echo "Теперь перезагрузите сервер и наслаждайтесь новой установкой VPN! :)"
 }
 
 if [[ "$EUID" -ne 0 ]]; then
-  echo "Sorry, you need to run this as root"
+  echo "Извините, для выполнения этого скрипта требуется права суперпользователя"
   exit 1
 fi
 
 if [[ ! -e /dev/net/tun ]]; then
-  echo "The TUN device is not available. You need to enable TUN before running this script"
+  echo "Устройство TUN недоступно. Вам нужно включить TUN перед запуском этого скрипта"
   exit 1
 fi
 
@@ -156,27 +156,27 @@ if [ -e /etc/centos-release ]; then
 elif [ -e /etc/debian_version ]; then
   DISTRO=$(lsb_release -is)
 else
-  echo "Your distribution is not supported (yet)"
+  echo "Ваш дистрибутив не поддерживается (пока)"
   exit 1
 fi
 
 if [ "$(systemd-detect-virt)" == "openvz" ]; then
-  echo "OpenVZ virtualization is not supported"
+  echo "Виртуализация OpenVZ не поддерживается"
   exit 1
 fi
 
-# Check if WireGuard is installed by verifying the existence of the configuration file
+# Проверка, установлен ли WireGuard, путем проверки существования конфигурационного файла
 if [ -f "$WG_CONFIG" ]; then
-  echo "WireGuard is already installed. Removing existing installation..."
+  echo "WireGuard уже установлен. Удаление существующей установки..."
   remove_wireguard
 fi
 
-# Installation process
+# Процесс установки
 if [[ "$1" == "-b" && "$2" != "" && "$3" == "-c" && "$4" != "" ]]; then
   CLIENT_BASE_NAME=$2
   CLIENT_COUNT=$4
   install_wireguard
 else
-  echo "Usage: $0 -b CLIENT_BASE_NAME -c CLIENT_COUNT to install and generate configurations"
+  echo "Использование: $0 -b CLIENT_BASE_NAME -c CLIENT_COUNT для установки и генерации конфигураций"
   exit 1
 fi
