@@ -2,6 +2,11 @@
 
 set -e
 
+function getServerIP() {
+    IP=$(ip -4 addr show | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
+    echo "$IP"
+}
+
 # Удаление предыдущей установки Squid
 echo "Удаление предыдущей установки Squid..."
 sudo systemctl stop squid || true
@@ -69,7 +74,7 @@ echo "Запуск службы Squid..."
 sudo systemctl restart squid
 
 # Получение IP-адреса сервера
-server_ip=$(hostname -I | awk '{print $1}')
+server_ip=$(getServerIP)
 
 # Вывод информации на экран
 echo " "
