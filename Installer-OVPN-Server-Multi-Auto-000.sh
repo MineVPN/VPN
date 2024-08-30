@@ -108,7 +108,7 @@ verb 3
 tls-auth /etc/openvpn/tls-auth.key 0
 auth SHA256
 tls-version-min 1.2
-tls-cipher TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 crl-verify crl.pem
 push "redirect-gateway def1 bypass-dhcp"
 push "dhcp-option DNS 8.8.8.8"
@@ -154,7 +154,7 @@ auth-nocache
 cipher AES-128-CBC
 tls-client
 tls-version-min 1.2
-tls-cipher TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 setenv opt block-outside-dns
 verb 3
 <ca>
