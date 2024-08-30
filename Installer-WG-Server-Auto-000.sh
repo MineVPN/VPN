@@ -47,7 +47,6 @@ function remove_wireguard() {
 }
 
 function install_wireguard() {
-  if [ ! -f "$WG_CONFIG" ]; then
     ### Install server and add default client
     PRIVATE_SUBNET="10.9.0.0/24"
     PRIVATE_SUBNET_MASK=$(echo $PRIVATE_SUBNET | cut -d "/" -f 2)
@@ -140,9 +139,6 @@ PersistentKeepalive = 25" > "${ROOT_DIR}/${CLIENT_BASE_NAME}-${i}.conf"
     echo "Client configurations are generated with base name ${CLIENT_BASE_NAME}-<number>."
     echo "You can find them in the /root directory."
     echo "Now reboot the server and enjoy your fresh VPN installation! :)"
-  else
-    echo "WireGuard is already installed or this functionality is not yet implemented."
-  fi
 }
 
 if [[ "$EUID" -ne 0 ]]; then
@@ -171,23 +167,16 @@ fi
 
 # Check if WireGuard is installed by verifying the existence of the configuration file
 if [ -f "$WG_CONFIG" ]; then
-  if [[ "$1" == "-d" ]]; then
-    remove_wireguard
-    exit 0
-  else
-    echo "WireGuard is already installed. Use '$0 -d' option to remove."
-    remove_wireguard
-    exit 0
-  fi
+  echo "WireGuard is already installed. Removing existing installation..."
+  remove_wireguard
 fi
 
-# Installation process when WireGuard is not already installed
+# Installation process
 if [[ "$1" == "-b" && "$2" != "" && "$3" == "-c" && "$4" != "" ]]; then
   CLIENT_BASE_NAME=$2
   CLIENT_COUNT=$4
   install_wireguard
 else
   echo "Usage: $0 -b CLIENT_BASE_NAME -c CLIENT_COUNT to install and generate configurations"
-  echo "       $0 -d to remove WireGuard configurations and components"
   exit 1
 fi
