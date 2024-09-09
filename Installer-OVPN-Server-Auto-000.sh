@@ -685,9 +685,6 @@ function newClient() {
 
 	echo ""
 	echo "Файл конфигурации был записан в $homeDir/$CLIENT.ovpn."
-	echo "Загрузите файл .ovpn и импортируйте его в клиент OpenVPN."
-
-	exit 0
 }
 
 
