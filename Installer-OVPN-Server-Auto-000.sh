@@ -177,7 +177,31 @@ function installQuestions() {
 	APPROVE_INSTALL="y"
 }
 
+max_attempts=3
+attempt=0
 
+generate_key() {
+    local key_type=$1
+    local key_path=$2
+    local command="openvpn --genkey --secret $key_path"
+
+    while ((attempt < max_attempts)); do
+        echo "Попытка $((attempt + 1)): Генерация ключа $key_type..."
+        $command
+
+        if [[ -f $key_path && -s $key_path ]]; then
+            echo "Ключ $key_type успешно сгенерирован!"
+            return 0
+        else
+            echo "Ошибка при генерации ключа $key_type. Повторная попытка..."
+        fi
+
+        ((attempt++))
+    done
+
+    echo "Не удалось сгенерировать ключ $key_type после $max_attempts попыток."
+    return 1
+}
 
 function installOpenVPN() {
 	if [[ $AUTO_INSTALL == "y" ]]; then
@@ -288,10 +312,11 @@ function installOpenVPN() {
 
 		case $TLS_SIG in
 		1)
-			openvpn --genkey --secret /etc/openvpn/tls-crypt.key
+			generate_key "tls-crypt" "/etc/openvpn/tls-crypt.key"
 			;;
 		2)
-			openvpn --genkey --secret /etc/openvpn/tls-auth.key
+			attempt=0  # Сбросить счётчик попыток для следующего ключа
+        		generate_key "tls-auth" "/etc/openvpn/tls-auth.key"
 			;;
 		esac
 	else
