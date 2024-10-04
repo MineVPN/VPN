@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 function isRoot() {
 	if [ "$EUID" -ne 0 ]; then
@@ -203,6 +203,31 @@ generate_key() {
     return 1
 }
 
+MAX_INSTALL_ATTEMPTS=3
+# Функция для установки пакетов с проверкой успешности
+install_packages() {
+    local install_command=$1
+    local attempt=1
+
+    while [[ $attempt -le $MAX_INSTALL_ATTEMPTS ]]; do
+        echo "Попытка установки пакетов (Попытка $attempt из $MAX_INSTALL_ATTEMPTS)..."
+        eval "$install_command"
+
+        # Проверка, установлен ли OpenVPN
+        if command -v openvpn >/dev/null 2>&1; then
+            echo "OpenVPN успешно установлен."
+            return 0
+        else
+            echo "Ошибка: OpenVPN не установлен."
+            ((attempt++))
+            sleep 2
+        fi
+    done
+
+    echo "Не удалось установить OpenVPN после $MAX_INSTALL_ATTEMPTS попыток."
+    return 1
+}
+
 function installOpenVPN() {
 	if [[ $AUTO_INSTALL == "y" ]]; then
 		APPROVE_INSTALL=${APPROVE_INSTALL:-y}
@@ -240,34 +265,73 @@ function installOpenVPN() {
 	fi
 
 	if [[ ! -e /etc/openvpn/server.conf ]]; then
-		if [[ $OS =~ (debian|ubuntu) ]]; then
-			apt-get update
-			apt-get -y install ca-certificates gnupg
-			if [[ $VERSION_ID == "16.04" ]]; then
-				echo "deb http://build.openvpn.net/debian/openvpn/stable xenial main" >/etc/apt/sources.list.d/openvpn.list
-				wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add -
-				apt-get update
-			fi
-			apt-get install -y openvpn iptables openssl wget ca-certificates curl
-		elif [[ $OS == 'centos' ]]; then
-			yum install -y epel-release
-			yum install -y openvpn iptables openssl wget ca-certificates curl tar 'policycoreutils-python*'
-		elif [[ $OS == 'oracle' ]]; then
-			yum install -y oracle-epel-release-el8
-			yum-config-manager --enable ol8_developer_EPEL
-			yum install -y openvpn iptables openssl wget ca-certificates curl tar policycoreutils-python-utils
-		elif [[ $OS == 'amzn' ]]; then
-			amazon-linux-extras install -y epel
-			yum install -y openvpn iptables openssl wget ca-certificates curl
-		elif [[ $OS == 'fedora' ]]; then
-			dnf install -y openvpn iptables openssl wget ca-certificates curl policycoreutils-python-utils
-		elif [[ $OS == 'arch' ]]; then
-			pacman --needed --noconfirm -Syu openvpn iptables openssl wget ca-certificates curl
-		fi
-		if [[ -d /etc/openvpn/easy-rsa/ ]]; then
-			rm -rf /etc/openvpn/easy-rsa/
-		fi
-	fi
+        if [[ $OS =~ (debian|ubuntu) ]]; then
+            INSTALL_CMD="apt-get update && apt-get -y install ca-certificates gnupg"
+            install_packages "$INSTALL_CMD"
+            if [[ $? -ne 0 ]]; then
+                echo "Не удалось установить ca-certificates и gnupg."
+                exit 1
+            fi
+
+            if [[ $VERSION_ID == "16.04" ]]; then
+                echo "deb http://build.openvpn.net/debian/openvpn/stable xenial main" >/etc/apt/sources.list.d/openvpn.list
+                wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add -
+                INSTALL_CMD="apt-get update && apt-get -y install openvpn iptables openssl wget ca-certificates curl"
+                install_packages "$INSTALL_CMD"
+                if [[ $? -ne 0 ]]; then
+                    echo "Не удалось установить OpenVPN на Ubuntu 16.04."
+                    exit 1
+                fi
+            else
+                INSTALL_CMD="apt-get install -y openvpn iptables openssl wget ca-certificates curl"
+                install_packages "$INSTALL_CMD"
+                if [[ $? -ne 0 ]]; then
+                    echo "Не удалось установить OpenVPN на Debian/Ubuntu."
+                    exit 1
+                fi
+            fi
+        elif [[ $OS == 'centos' ]]; then
+            INSTALL_CMD="yum install -y epel-release && yum install -y openvpn iptables openssl wget ca-certificates curl tar 'policycoreutils-python*'"
+            install_packages "$INSTALL_CMD"
+            if [[ $? -ne 0 ]]; then
+                echo "Не удалось установить OpenVPN на CentOS."
+                exit 1
+            fi
+        elif [[ $OS == 'oracle' ]]; then
+            INSTALL_CMD="yum install -y oracle-epel-release-el8 && yum-config-manager --enable ol8_developer_EPEL && yum install -y openvpn iptables openssl wget ca-certificates curl tar policycoreutils-python-utils"
+            install_packages "$INSTALL_CMD"
+            if [[ $? -ne 0 ]]; then
+                echo "Не удалось установить OpenVPN на Oracle Linux."
+                exit 1
+            fi
+        elif [[ $OS == 'amzn' ]]; then
+            INSTALL_CMD="amazon-linux-extras install -y epel && yum install -y openvpn iptables openssl wget ca-certificates curl"
+            install_packages "$INSTALL_CMD"
+            if [[ $? -ne 0 ]]; then
+                echo "Не удалось установить OpenVPN на Amazon Linux 2."
+                exit 1
+            fi
+        elif [[ $OS == 'fedora' ]]; then
+            INSTALL_CMD="dnf install -y openvpn iptables openssl wget ca-certificates curl policycoreutils-python-utils"
+            install_packages "$INSTALL_CMD"
+            if [[ $? -ne 0 ]]; then
+                echo "Не удалось установить OpenVPN на Fedora."
+                exit 1
+            fi
+        elif [[ $OS == 'arch' ]]; then
+            INSTALL_CMD="pacman --needed --noconfirm -Syu openvpn iptables openssl wget ca-certificates curl"
+            install_packages "$INSTALL_CMD"
+            if [[ $? -ne 0 ]]; then
+                echo "Не удалось установить OpenVPN на Arch Linux."
+                exit 1
+            fi
+        fi
+
+        # Удаление старой версии easy-rsa, если она существует
+        if [[ -d /etc/openvpn/easy-rsa/ ]]; then
+            rm -rf /etc/openvpn/easy-rsa/
+        fi
+    fi
 
 	if grep -qs "^nogroup:" /etc/group; then
 		NOGROUP=nogroup
@@ -316,7 +380,7 @@ function installOpenVPN() {
 			;;
 		2)
 			attempt=0  # Сбросить счётчик попыток для следующего ключа
-        	        generate_key "tls-auth" "/etc/openvpn/tls-auth.key"
+        	generate_key "tls-auth" "/etc/openvpn/tls-auth.key"
 			;;
 		esac
 	else
