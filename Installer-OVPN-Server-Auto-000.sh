@@ -316,7 +316,7 @@ function installOpenVPN() {
 			;;
 		2)
 			attempt=0  # Сбросить счётчик попыток для следующего ключа
-        		generate_key "tls-auth" "/etc/openvpn/tls-auth.key"
+        	        generate_key "tls-auth" "/etc/openvpn/tls-auth.key"
 			;;
 		esac
 	else
