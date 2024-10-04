@@ -10,7 +10,7 @@ function isRoot() {
 function tunAvailable() {
 	if [ ! -e /dev/net/tun ]; then
 		echo "Устройство TUN недоступно."
-		exit 1
+		exit 0
 	fi
 }
 
