@@ -593,36 +593,6 @@ function newClient() {
 }
 
 
-function removeUnbound() {
-	sed -i '/include: \/etc\/unbound\/openvpn.conf/d' /etc/unbound/unbound.conf
-	rm /etc/unbound/openvpn.conf
-
-	REMOVE_UNBOUND="y"
-
-	if [[ $REMOVE_UNBOUND == 'y' ]]; then
-		systemctl stop unbound
-
-		if [[ $OS =~ (debian|ubuntu) ]]; then
-			apt-get remove --purge -y unbound
-		elif [[ $OS == 'arch' ]]; then
-			pacman --noconfirm -R unbound
-		elif [[ $OS =~ (centos|amzn|oracle) ]]; then
-			yum remove -y unbound
-		elif [[ $OS == 'fedora' ]]; then
-			dnf remove -y unbound
-		fi
-
-		rm -rf /etc/unbound/
-
-		echo ""
-		echo "Unbound удален!"
-	else
-		systemctl restart unbound
-		echo ""
-		echo "Unbound не удален."
-	fi
-}
-
 function removeOpenVPN() {
 	echo ""
 	REMOVE="y"
@@ -679,9 +649,6 @@ function removeOpenVPN() {
 		rm -f /etc/sysctl.d/99-openvpn.conf
 		rm -rf /var/log/openvpn
 
-		if [[ -e /etc/unbound/openvpn.conf ]]; then
-			removeUnbound
-		fi
 		echo ""
 		echo "OpenVPN удален!"
 	else
