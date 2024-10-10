@@ -320,35 +320,35 @@ function installOpenVPN() {
 		CONTINUE="y"
 	fi
 
-	if [[ $OS =~ (debian|ubuntu) ]]; then
-		apt-get update
-		apt-get -y install ca-certificates gnupg
-		if [[ $VERSION_ID == "16.04" ]]; then
-			echo "deb http://build.openvpn.net/debian/openvpn/stable xenial main" >/etc/apt/sources.list.d/openvpn.list
-			wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add -
+	if [[ ! -e /etc/openvpn/server.conf ]]; then
+		if [[ $OS =~ (debian|ubuntu) ]]; then
 			apt-get update
+			apt-get -y install ca-certificates gnupg
+			if [[ $VERSION_ID == "16.04" ]]; then
+				echo "deb http://build.openvpn.net/debian/openvpn/stable xenial main" >/etc/apt/sources.list.d/openvpn.list
+				wget -O - https://swupdate.openvpn.net/repos/repo-public.gpg | apt-key add -
+				apt-get update
+			fi
+			apt-get install -y openvpn iptables openssl wget ca-certificates curl
+		elif [[ $OS == 'centos' ]]; then
+			yum install -y epel-release
+			yum install -y openvpn iptables openssl wget ca-certificates curl tar 'policycoreutils-python*'
+		elif [[ $OS == 'oracle' ]]; then
+			yum install -y oracle-epel-release-el8
+			yum-config-manager --enable ol8_developer_EPEL
+			yum install -y openvpn iptables openssl wget ca-certificates curl tar policycoreutils-python-utils
+		elif [[ $OS == 'amzn' ]]; then
+			amazon-linux-extras install -y epel
+			yum install -y openvpn iptables openssl wget ca-certificates curl
+		elif [[ $OS == 'fedora' ]]; then
+			dnf install -y openvpn iptables openssl wget ca-certificates curl policycoreutils-python-utils
+		elif [[ $OS == 'arch' ]]; then
+			pacman --needed --noconfirm -Syu openvpn iptables openssl wget ca-certificates curl
 		fi
-		apt-get install -y openvpn iptables openssl wget ca-certificates curl
-	elif [[ $OS == 'centos' ]]; then
-		yum install -y epel-release
-		yum install -y openvpn iptables openssl wget ca-certificates curl tar 'policycoreutils-python*'
-	elif [[ $OS == 'oracle' ]]; then
-		yum install -y oracle-epel-release-el8
-		yum-config-manager --enable ol8_developer_EPEL
-		yum install -y openvpn iptables openssl wget ca-certificates curl tar policycoreutils-python-utils
-	elif [[ $OS == 'amzn' ]]; then
-		amazon-linux-extras install -y epel
-		yum install -y openvpn iptables openssl wget ca-certificates curl
-	elif [[ $OS == 'fedora' ]]; then
-		dnf install -y openvpn iptables openssl wget ca-certificates curl policycoreutils-python-utils
-	elif [[ $OS == 'arch' ]]; then
-		pacman --needed --noconfirm -Syu openvpn iptables openssl wget ca-certificates curl
+		if [[ -d /etc/openvpn/easy-rsa/ ]]; then
+			rm -rf /etc/openvpn/easy-rsa/
+		fi
 	fi
- 
-	if [[ -d /etc/openvpn/easy-rsa/ ]]; then
-		rm -rf /etc/openvpn/easy-rsa/
-	fi
-
 
 	if grep -qs "^nogroup:" /etc/group; then
 		NOGROUP=nogroup
