@@ -58,9 +58,9 @@ network:
     $output_interface:
       dhcp4: false
       addresses: [10.10.1.1/20]
-      nameservers: 
+      nameservers:
         addresses: [10.10.1.1]
-      optional: true   
+      optional: true
     $input_interface:
       dhcp4: true
   version: 2
