@@ -116,7 +116,7 @@ echo "[*] Установка нужных компонентов..."
 echo ""
 apt-get update
 apt-get upgrade -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn apache2 php libapache2-mod-php git iptables-persistent openssh-server resolvconf 
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y htop net-tools mtr network-manager dnsmasq wireguard openvpn apache2 php php-yaml libapache2-mod-php git iptables-persistent openssh-server resolvconf 
 
 # Файл, который необходимо изменить
 RESOLV_CONF="/etc/resolvconf/resolv.conf.d/base"
@@ -191,10 +191,12 @@ echo "[*] Установка ЛК..."
 echo ""
 chmod 777 /etc/openvpn/
 chmod 777 /etc/wireguard/
+chmod 666 /etc/netplan/01-network-manager-all.yaml
 echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl stop openvpn*, /bin/systemctl start openvpn*" >> /etc/sudoers
 echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl stop wg-quick*, /bin/systemctl start wg-quick*" >> /etc/sudoers
 echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl enable wg-quick*, /bin/systemctl disable wg-quick*" >> /etc/sudoers
 echo "www-data ALL=(root) NOPASSWD: /usr/bin/id" >> /etc/sudoers
+echo "www-data ALL=(ALL) NOPASSWD: /usr/sbin/netplan try, /usr/sbin/netplan apply" >> /etc/sudoers
 sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 sudo iptables-save > /etc/iptables/rules.v4
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
