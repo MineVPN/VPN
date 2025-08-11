@@ -176,7 +176,8 @@ echo ""
 
 sudo sed -i '/^#.*net.ipv4.ip_forward/s/^#//' /etc/sysctl.conf
 sudo sysctl -p
-iptables -t nat -A POSTROUTING -o tun0 -s 10.10.1.0/20 -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -o tun0 -s 10.10.1.0/20 -j MASQUERADE
+sudo iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 sudo iptables-save > /etc/iptables/rules.v4
 
 
