@@ -267,10 +267,31 @@ if [ -f "$SETTINGS_FILE" ] && ! grep -q "^vpnchecker=true$" "$SETTINGS_FILE" 2>/
     exit 0 # Проверка выключена, тихо выходим
 fi
 
-# 2. Убедимся, что интерфейс tun0 вообще существует. Если нет, нет смысла продолжать.
+# 2. Убедимся, что интерфейс tun0 вообще существует.
 if ! ip link show "$INTERFACE" > /dev/null 2>&1; then
-    #log "Интерфейс ${INTERFACE} не активен. Проверка невозможна."
-    # Можно добавить перезапуск, но лучше дождаться, когда служба поднимет его сама
+    log "Интерфейс ${INTERFACE} не активен."
+
+    # Проверяем, разрешено ли автоподнятие туннеля
+    if grep -q "^autoupvpn=true$" "$SETTINGS_FILE" 2>/dev/null; then
+        # Да, автоподнятие разрешено.
+        log "Настройка 'autoupvpn=true' активна. Пытаемся поднять интерфейс..."
+        
+        if [ -f "/etc/wireguard/${INTERFACE}.conf" ]; then
+            log "Перезапускаем WireGuard (wg-quick@${INTERFACE})..."
+            systemctl restart "wg-quick@${INTERFACE}"
+        elif [ -f "/etc/openvpn/${INTERFACE}.conf" ]; then
+            log "Перезапускаем OpenVPN (openvpn@${INTERFACE})..."
+            systemctl restart "openvpn@${INTERFACE}"
+        else
+            log "Конфигурационные файлы VPN не найдены. Нечего перезапускать."
+        fi
+        
+    else
+        # Нет, автоподнятие запрещено или файл/настройка отсутствуют.
+        log "Автоподнятие интерфейса отключено в настройках. Выход."
+    fi
+    
+    # В любом случае выходим из скрипта, так как интерфейса нет и дальнейшие проверки бессмысленны.
     exit 1
 fi
 
