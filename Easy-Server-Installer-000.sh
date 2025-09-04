@@ -12,6 +12,8 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+SCRIPT_VERSION=3
+VERSION_FILE="/var/www/version"
 
 # Получаем список сетевых интерфейсов и их адресов
 interfaces_and_addresses=$(ip addr show | awk '/^[0-9]+:/ {if (interface != "") print interface ": " address; interface=$2; address=""; next} /inet / {split($2, parts, "/"); address=parts[1]} END {if (interface != "") print interface ": " address}' | nl)
@@ -204,11 +206,164 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo service iptables restart
 rm /var/www/html/*
 sudo git clone https://github.com/MineVPN/WebVPNCabinet.git /var/www/html
-echo "0 4 * * * /bin/bash /var/www/html/update.sh" | sudo crontab -
 
 
 echo ""
-echo "[*] Установка Завершена!"
+echo "[*] Установка сервиса обновлений..."
+echo ""
+LAUNCHER_PATH="/usr/local/bin/run-update.sh"
+
+# Создаем файл загрузчика
+echo "   Создаю $LAUNCHER_PATH..."
+sudo tee $LAUNCHER_PATH > /dev/null << 'EOF'
+#!/bin/bash
+cd /var/www/html/ || exit
+echo "Обновляем ЛК..."
+sudo git fetch origin
+sudo git reset --hard origin/main
+sudo git clean -df
+sudo chmod +x /var/www/html/update.sh
+echo "Запускаем скрипт обновления update.sh..."
+/var/www/html/update.sh
+EOF
+        
+# Делаем загрузчик исполняемым
+echo "Делаю загрузчик исполняемым..."
+sudo chmod +x $LAUNCHER_PATH
+
+# Помещаем запись в crontab
+echo "0 4 * * * /bin/bash /usr/local/bin/run-update.sh" | sudo crontab -
+echo ""
+echo "[*] Установка сервиса обновлений завершена"
+echo ""
+
+
+echo ""
+echo "[*] Установка сервиса автоанализа и восстановления VPN-тонелей..."
+echo ""
+
+
+chmod 777 /var/www/html/settings
+# Создание скрипта проверки (установка) ---
+echo "⚙️  Создание универсального скрипта проверки в /usr/local/bin/vpn-healthcheck.sh..."
+cat > /usr/local/bin/vpn-healthcheck.sh << 'EOF'
+#!/bin/bash
+
+# --- Конфигурация ---
+INTERFACE="tun0"
+SETTINGS_FILE="/var/www/html/settings"
+IP_CHECK_SERVICE="ifconfig.me"
+
+# --- Функции ---
+log() {
+    logger -t VPNCheck "$1"
+    echo "$1"
+}
+
+# --- Основная логика ---
+
+# 1. Проверяем, разрешена ли проверка в файле настроек.
+if [ -f "$SETTINGS_FILE" ] && ! grep -q "^vpnchecker=true$" "$SETTINGS_FILE" 2>/dev/null; then
+    exit 0 # Проверка выключена, тихо выходим
+fi
+
+# 2. Убедимся, что интерфейс tun0 вообще существует. Если нет, нет смысла продолжать.
+if ! ip link show "$INTERFACE" > /dev/null 2>&1; then
+    #log "Интерфейс ${INTERFACE} не активен. Проверка невозможна."
+    # Можно добавить перезапуск, но лучше дождаться, когда служба поднимет его сама
+    exit 1
+fi
+
+# 3. ДИНАМИЧЕСКАЯ ПРОВЕРКА МАРШРУТИЗАЦИИ (по вашей идее)
+# Получаем публичный IP через маршрут по умолчанию
+DEFAULT_ROUTE_IP=$(curl -s --max-time 5 "$IP_CHECK_SERVICE")
+
+# Получаем публичный IP, принудительно используя интерфейс tun0
+TUN0_ROUTE_IP=$(curl -s --interface "$INTERFACE" --max-time 5 "$IP_CHECK_SERVICE")
+
+# 4. Анализ результатов
+# Сначала проверяем, удалось ли вообще получить IP
+if [[ -z "$DEFAULT_ROUTE_IP" || -z "$TUN0_ROUTE_IP" ]]; then
+    #log "Не удалось получить один или оба IP-адреса для сравнения. Возможно, полное отсутствие интернета."
+    # Определяем, какой сервис перезапускать
+    if [ -f "/etc/wireguard/${INTERFACE}.conf" ]; then
+        #log "Перезапускаем WireGuard (wg-quick@${INTERFACE})..."
+        systemctl restart "wg-quick@${INTERFACE}"
+    elif [ -f "/etc/openvpn/${INTERFACE}.conf" ]; then
+        #log "Перезапускаем OpenVPN (openvpn@${INTERFACE})..."
+        systemctl restart "openvpn@${INTERFACE}"
+    fi
+    exit 1
+fi
+
+# Теперь главная проверка: сравниваем IP
+if [[ "$DEFAULT_ROUTE_IP" != "$TUN0_ROUTE_IP" ]]; then
+    #log "ОБНАРУЖЕНА УТЕЧКА МАРШРУТА!"
+    #log "   -> IP по умолчанию: $DEFAULT_ROUTE_IP (неправильный)"
+    #log "   -> IP через tun0: $TUN0_ROUTE_IP (правильный)"
+    
+    # Определяем, какой сервис перезапускать
+    if [ -f "/etc/wireguard/${INTERFACE}.conf" ]; then
+        #log "Перезапускаем WireGuard для исправления маршрутизации..."
+        systemctl restart "wg-quick@${INTERFACE}"
+    elif [ -f "/etc/openvpn/${INTERFACE}.conf" ]; then
+        #log "Перезапускаем OpenVPN для исправления маршрутизации..."
+        systemctl restart "openvpn@${INTERFACE}"
+    fi
+    exit 1
+else
+    #log "Проверка пройдена. Маршрутизация в порядке (Публичный IP: $DEFAULT_ROUTE_IP)."
+    exit 0
+fi
+EOF
+
+# --- Установка прав на выполнение скрипта ---
+chmod +x /usr/local/bin/vpn-healthcheck.sh
+echo "✅  Скрипт создан и сделан исполняемым."
+
+# Установка службы и таймера ---
+echo "⚙️  Создание файла службы /etc/systemd/system/vpn-healthcheck.service..."
+cat > /etc/systemd/system/vpn-healthcheck.service << 'EOF'
+[Unit]
+Description=VPN Health Check Service
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/vpn-healthcheck.sh
+EOF
+echo "✅  Файл службы создан."
+
+echo "⚙️  Создание файла таймера /etc/systemd/system/vpn-healthcheck.timer..."
+cat > /etc/systemd/system/vpn-healthcheck.timer << 'EOF'
+[Unit]
+Description=Run VPN Health Check Service periodically
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=30s
+Unit=vpn-healthcheck.service
+
+[Install]
+WantedBy=timers.target
+EOF
+echo "✅  Файл таймера создан."
+
+echo "🚀  Перезагрузка systemd, включение и запуск таймера..."
+systemctl daemon-reload
+systemctl stop vpn-healthcheck.timer >/dev/null 2>&1
+systemctl enable --now vpn-healthcheck.timer
+
+# --- Финальное сообщение ---
+echo ""
+echo "[*] Установка сервиса автоанализа и восстановления VPN-тонелей завершена."
+echo ""
+
+echo "$SCRIPT_VERSION" | sudo tee "$VERSION_FILE" > /dev/null
+
+
+echo ""
+echo "[*] Установка и настройка сервера полностью Завершена!"
 echo ""
 echo "Вы можете перейти в ЛК для установки конфига"
 echo "Ссылка http://10.10.1.1/ для подключения с локальной сети"
