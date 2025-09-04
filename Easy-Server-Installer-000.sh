@@ -243,7 +243,7 @@ echo "[*] Установка сервиса автоанализа и восст
 echo ""
 
 
-chmod 777 /var/www/html/settings
+chmod 777 /var/www/settings
 # Создание скрипта проверки (установка) ---
 echo "⚙️  Создание универсального скрипта проверки в /usr/local/bin/vpn-healthcheck.sh..."
 cat > /usr/local/bin/vpn-healthcheck.sh << 'EOF'
