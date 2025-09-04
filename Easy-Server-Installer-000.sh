@@ -251,7 +251,7 @@ cat > /usr/local/bin/vpn-healthcheck.sh << 'EOF'
 
 # --- Конфигурация ---
 INTERFACE="tun0"
-SETTINGS_FILE="/var/www/html/settings"
+SETTINGS_FILE="/var/www/settings"
 IP_CHECK_SERVICE="ifconfig.me"
 
 # --- Функции ---
@@ -369,6 +369,11 @@ Unit=vpn-healthcheck.service
 WantedBy=timers.target
 EOF
 echo "✅  Файл таймера создан."
+
+cat > /var/www/settings << EOF
+vpnchecker=true
+autoupvpn=true
+EOF
 
 echo "🚀  Перезагрузка systemd, включение и запуск таймера..."
 systemctl daemon-reload
